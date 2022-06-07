@@ -1,0 +1,28 @@
+<html>
+  <head>
+	<meta charset="UTF-8" />
+    <title>
+	  Домашняя метеостанция
+	</title>
+	<link rel="stylesheet" href="style.css" media="all">
+  </head>
+  <body>
+    <h1>Настройки</h1>
+	<nav class="top-menu">
+		<ul class="menu-main">
+		  <li><a href="index.html">Домашняя</a></li>
+		  <li><a href="history.html">История показаний</a></li>
+		  <li><a href="settings.html" class="current">Настройки</a></li>
+		  <li><a href="about.html">О проекте</a></li>
+		</ul>
+	</nav>
+    <form method="post" action="action.html">
+      <fieldset>
+      <legend>Подключение к WiFi сети</legend>
+        <p><label for="name">SSID <em>*</em></label><input type="text" name="ssid" id="ssid"></p>
+        <p><label for="password">password</label><input type="password" name="password" id="password"></p>
+      </fieldset>
+      <p><input type="submit" value="Отправить"></p>
+    </form>
+  </body>
+</html>
