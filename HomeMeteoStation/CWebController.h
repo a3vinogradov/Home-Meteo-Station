@@ -3,7 +3,8 @@
 
 #include "CFSController.h"
 
-#define APSSID "BelkoESP_AP"
+#define LOCALSSID "HomeStationAuto"
+#define APSSID "BelkoNet"
 #define APPSK  "liskabelko"
 
 #include <ESP8266WiFi.h>
@@ -24,6 +25,9 @@ class CWebController {
     static CWebController* _instance;
     CFSController* _fsController;
     ESP8266WebServer* _webServer;
+
+    void ConfigureWebServer();
+    bool TryToConnect(String ssid, String pass);
 };
 
 #endif

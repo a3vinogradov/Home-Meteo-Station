@@ -52,21 +52,25 @@ CWebController* CWebController::GetInstance()
 
 void CWebController::Setup()
 {
-  _fsController->Setup();
+  if (TryToConnect(APSSID, APPSK))
+  {
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());    
+  }
+  else
+  {
+    Serial.println("Non Connecting to WiFi..");
+    Serial.println("Start create AP");
+    WiFi.softAP(LOCALSSID); // свободный доступ
+    IPAddress myIP = WiFi.softAPIP();    
+  }
   
-  WiFi.softAP(APSSID); // свободный доступ
+  _fsController->Setup();
   delay(100);
-  IPAddress myIP = WiFi.softAPIP();
 
-  _webServer->on("/", HandleRoot);
-  _webServer->on("/index.html", HandleRoot);
-  _webServer->on("/settings.html", HandleSettings);
-  _webServer->on("/action.html", GHandleAction);
-  _webServer->on("/about.html", HandleAbout);
-  _webServer->on("/history.html", HandleHistory);
-  _webServer->on("/style.css", HandleStyle);
-  _webServer->onNotFound(Handle_NotFound);
-  _webServer->begin();
+  ConfigureWebServer();
 }
 
 void CWebController::Exec()
@@ -79,12 +83,9 @@ void CWebController::SendContent(int code, String contentType, String content )
   _webServer->send(code,contentType, content);
 }
 
-void CWebController::HandlePage(String pageName){
+void CWebController::HandlePage(String pageName)
+{
   String res = _fsController->ReadFile(pageName);
-  Serial.println("Handle Page: ");
-  Serial.println(res);
-
-
   if (res == "")
   {
     _webServer->send(404, "text/plain", "Error reading file!");
@@ -95,7 +96,8 @@ void CWebController::HandlePage(String pageName){
   }
 }
 
-void CWebController::HandleAction(){
+void CWebController::HandleAction()
+{
   String message = "Number of args received:";
   message += _webServer->args();      // получить количество параметров
   message += "\n";               // переход на новую строку
@@ -108,4 +110,31 @@ void CWebController::HandleAction(){
   } 
 
   SendContent(200, "text/plain", message);    // ответить на HTTP запрос
+}
+
+void CWebController::ConfigureWebServer()
+{
+ _webServer->on("/", HandleRoot);
+  _webServer->on("/index.html", HandleRoot);
+  _webServer->on("/settings.html", HandleSettings);
+  _webServer->on("/action.html", GHandleAction);
+  _webServer->on("/about.html", HandleAbout);
+  _webServer->on("/history.html", HandleHistory);
+  _webServer->on("/style.css", HandleStyle);
+  _webServer->onNotFound(Handle_NotFound);
+  _webServer->begin();  
+}
+
+bool CWebController::TryToConnect(String ssid, String pass)
+{
+  byte tries = 20;
+
+  WiFi.begin(APSSID, APPSK);
+  
+  while (--tries && WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  return WiFi.status() == WL_CONNECTED;
 }
