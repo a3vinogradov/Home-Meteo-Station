@@ -2,6 +2,7 @@
 #define CWebControllerFile
 
 #include "CFSController.h"
+#include "CEEController.h"
 
 #define LOCALSSID "HomeStationAuto"
 #define APSSID "BelkoNet"
@@ -24,6 +25,7 @@ class CWebController {
   private:
     static CWebController* _instance;
     CFSController* _fsController;
+    CEEController* _eeController;
     ESP8266WebServer* _webServer;
 
     void ConfigureWebServer();

@@ -38,6 +38,7 @@ void GHandleAction()
 CWebController::CWebController()
 {
   _fsController = new CFSController;
+  _eeController = new CEEController;
   _webServer = new ESP8266WebServer(80);
 }
 
@@ -47,6 +48,7 @@ CWebController* CWebController::GetInstance()
   {
     _instance = new CWebController();
   }
+  
   return _instance;
 }
 
@@ -108,6 +110,8 @@ void CWebController::HandleAction()
     message += _webServer->argName(i) + ": ";      // получить имя параметра
     message += _webServer->arg(i) + "\n";          // получить значение параметра
   } 
+
+  message += _eeController->EEDataToString(_eeController->ReadData());
 
   SendContent(200, "text/plain", message);    // ответить на HTTP запрос
 }
