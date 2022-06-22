@@ -24,7 +24,8 @@ EEData CEEController::GetEmtyData()
   strcpy(res.ssPassword, "");   
   strcpy(res.ssidAP, "");   
   strcpy(res.ssPasswordAP, ""); 
-    
+  res.pollingPeriod = 0;
+
   return res;
 }
 EEData CEEController::GetDefaultData()
@@ -36,6 +37,7 @@ EEData CEEController::GetDefaultData()
   strcpy(res.ssPassword, "");   
   strcpy(res.ssidAP, "HomeStationAuto");   
   strcpy(res.ssPasswordAP, ""); 
+  res.pollingPeriod = 1800;
     
   return res;
 }    
@@ -74,6 +76,7 @@ String CEEController::EEDataToString(EEData eeData)
   res = res + "dataKey = " + String(eeData.ssPassword) + "\n"; 
   res = res + "dataKey = " + String(eeData.ssidAP) + "\n"; 
   res = res + "dataKey = " + String(eeData.ssPasswordAP) + "\n"; 
+  res = res + "pooling period = " + String(eeData.pollingPeriod) + "сек \n"; 
   
   return res;
 }

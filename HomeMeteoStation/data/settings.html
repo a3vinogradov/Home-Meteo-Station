@@ -7,20 +7,39 @@
 	<link rel="stylesheet" href="style.css" media="all">
   </head>
   <body>
-    <h1>Настройки</h1>
 	<nav class="top-menu">
 		<ul class="menu-main">
 		  <li><a href="index.html">Домашняя</a></li>
-		  <li><a href="history.html">История показаний</a></li>
+		  <li><a href="history.html">История</a></li>
 		  <li><a href="settings.html" class="current">Настройки</a></li>
 		  <li><a href="about.html">О проекте</a></li>
 		</ul>
 	</nav>
-    <form method="post" action="action.html">
+    <h1>Настройки</h1>
+
+    <form method="post" action="action.html" class="Formsettings">
       <fieldset>
-      <legend>Подключение к WiFi сети</legend>
-        <p><label for="name">SSID <em>*</em></label><input type="text" name="ssid" id="ssid"></p>
-        <p><label for="password">password</label><input type="password" name="password" id="password"></p>
+      <legend>Выбор режима работы WiFi</legend>
+        <!-- <input name="wifimode" type="radio" value="AP" <%ModeWiFiAP%> > Точка доступа -->
+        <input name="wifimode" type="radio" value="AP" checked > Точка доступа
+        <!-- <input name="wifimode" type="radio" value="STA" <%ModeWiFiSTA%> > Подключение к WiFi сети -->
+        <input name="wifimode" type="radio" value="STA"> Подключение к WiFi сети
+      </fieldset>
+      
+	  <fieldset>
+        <legend>Параметры локальной точки доступа</legend>
+          <p><label for="name">SSID<em>*</em></label><input type="text" name="ssid" id="ssid" value="<%APSSID%>"> </p>
+      </fieldset>
+      
+	  <fieldset>
+      <legend>Параметры подключения к сети WiFi</legend>
+        <p><label for="name">SSID</label><input type="text" name="ssid" id="ssid" value="<%STASSID%>"></p>
+        <p><label for="password">password</label><input type="password" name="password" id="password" value="<%STAPassword%>"></p>
+      </fieldset>
+
+	  <fieldset>
+      <legend>Прочие настройки </legend>
+        <p><label for="name">Период опроса (мин)</label><input type="text" name="polingfrequency" id="polingfrequency" value="<%PoolingFrequency%>" style="width: 100"></p>
       </fieldset>
       <p><input type="submit" value="Отправить"></p>
     </form>

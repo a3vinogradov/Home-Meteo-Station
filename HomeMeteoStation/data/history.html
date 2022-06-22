@@ -7,16 +7,32 @@
 	<link rel="stylesheet" href="style.css" media="all">
   </head>
   <body>
-    <h1>История показаний</h1>
 	<nav class="top-menu">
 		<ul class="menu-main">
 		  <li><a href="index.html">Домашняя</a></li>
-		  <li><a href="history.html" class="current">История показаний</a></li>
+		  <li><a href="history.html" class="current">История</a></li>
 		  <li><a href="settings.html">Настройки</a></li>
 		  <li><a href="about.html">О проекте</a></li>
 		</ul>
 	</nav>
-<h2>Таблица показаний </h2>
-<p>дата/температура/влажность/давление<p>
+    <h1>История показаний</h1>
+
+	<table class="HistoryPage">
+	 <tr>
+	  <th>№</th>
+	  <th>Дата</th>
+	  <th>T(*C)</th>
+	  <th>P (мм рт. ст.)</th>
+	  <th>H (%)</th>
+	  </tr>
+	 <tr>
+	  <td>35</td>
+	  <td>12.06.2022 16:51</td>
+	  <td>20.3</td>
+	  <td>750</td>
+	  <td>35.3</td>
+	 </tr>
+	 <%TableHistory%>
+	</table>
   </body>
 </html>

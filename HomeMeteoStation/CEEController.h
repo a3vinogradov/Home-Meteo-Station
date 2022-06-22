@@ -16,6 +16,7 @@ struct EEData
   char ssPassword[33];
   char ssidAP[33];
   char ssPasswordAP[33];
+  int pollingPeriod; // период опроса датчиков в секундах
 };
 
 class CEEController

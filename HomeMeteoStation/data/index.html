@@ -7,21 +7,49 @@
 	<link rel="stylesheet" href="style.css" media="all">
   </head>
   <body>
-    <h1>Домашняя метеостанция</h1>
 	<nav class="top-menu">
 		<ul class="menu-main">
 		  <li><a href="" class="current">Домашняя</a></li>
-		  <li><a href="history.html">История показаний</a></li>
+		  <li><a href="history.html">История</a></li>
 		  <li><a href="settings.html">Настройки</a></li>
 		  <li><a href="about.html">О проекте</a></li>
 		</ul>
 	</nav>
-	<h2>Текущие показания:</h2>
-	<h3>Температура</h3>
-	<p><%Temperature%> *C</p>
-	<h3>Давление</h3>
-	<p><%Pressure%> мм рт. ст. *C</p>
-	<h3>Относительная влажность</h3>
-	<p><%Hummidity%> %</p>
+    <h1>Метеостанция</h1>
+	
+	<table class="IndexPage">
+	<tr>
+	  <th>Температура</th>
+	</tr>
+	<tr>
+	   <td><%Temperature%> *C</td> 
+	   <!-- <td>25,0 *C</td>  -->
+	 </tr>
+	<tr>
+	  <th>Давление</th>
+	</tr>
+	<tr>
+	  <td><%Pressure%> мм рт. ст. *C</td>
+	  <!-- <td>760 мм рт. ст.</td> -->
+	</tr>
+	<tr>
+	  <th>Относительная влажность</th>
+	</tr>
+	<tr>
+	  <td><%Hummidity%> %</td>
+	  <!-- <td>40,2 %</td> -->
+	</tr>
+	</table>
+	<div class="dark">
+    <form method="post" action="action.html">
+      <div class="darkcontainer">
+	    <input hidden="true" type="text" name="update" value ="true">
+        <input type="submit" value="Обновить">
+	  </div>
+    </form>
+	</div>
+	
+	
   </body>
+  
 </html>

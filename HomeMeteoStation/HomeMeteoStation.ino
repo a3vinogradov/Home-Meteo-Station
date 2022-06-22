@@ -12,11 +12,22 @@
 CWebController* webController = CWebController::GetInstance();
 
 void setup() {
-  
   Serial.begin(115200);
   delay(1000);
   Serial.println("");
+  Serial.println("");
   Serial.println("Init Start setup");
+
+  // проверка нажатия кнопки ресет
+  if (digitalRead(16) == HIGH)
+  {
+    delay(40);
+    if (digitalRead(16) == HIGH)
+    {
+      webController->Reset();
+      Serial.println("Reset configuration");
+    }
+  }
   
   webController->Setup();
   Serial.println("End Start setup");

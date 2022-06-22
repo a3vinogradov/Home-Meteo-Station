@@ -21,6 +21,10 @@ class CWebController {
     void SendContent(int code, String contentType, String content );
     void HandlePage(String pageName);
     void HandleAction();
+    void Reset();
+    //void HandleAbout();
+    String FormatPage(String content, String pageName);
+
 
   private:
     static CWebController* _instance;
