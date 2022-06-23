@@ -54,20 +54,45 @@ CWebController* CWebController::GetInstance()
 
 void CWebController::Setup()
 {
-  if (TryToConnect(APSSID, APPSK))
+  _eeCurrentData = _eeController->ReadData();
+  if(_eeCurrentData.dataKey != EEPROM_KEY)
   {
+    Reset();
+  }
+  
+  _eeCurrentData = _eeController->ReadData();
+  if (_eeCurrentData.wifiMode == EEPROM_WIFI_AP)
+  {
+    Serial.println("Start create AP");
+    WiFi.softAP(_eeCurrentData.apSSID); // свободный доступ
+    IPAddress myIP = WiFi.softAPIP();    
+    Serial.print("IP: ");
+    Serial.println(myIP);
+  } 
+  else 
+  {
+    TryToConnect(_eeCurrentData.staSSID, _eeCurrentData.staPassword);
     Serial.println("");
-    Serial.println("WiFi connected");
+    //Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());    
   }
-  else
-  {
-    Serial.println("Non Connecting to WiFi..");
-    Serial.println("Start create AP");
-    WiFi.softAP(LOCALSSID); // свободный доступ
-    IPAddress myIP = WiFi.softAPIP();    
-  }
+
+  
+//  if (TryToConnect(APSSID, APPSK))
+//  {
+//    Serial.println("");
+//    Serial.println("WiFi connected");
+//    Serial.println("IP address: ");
+//    Serial.println(WiFi.localIP());    
+//  }
+//  else
+//  {
+//    Serial.println("Non Connecting to WiFi..");
+//    Serial.println("Start create AP");
+//    WiFi.softAP(LOCALSSID); // свободный доступ
+//    IPAddress myIP = WiFi.softAPIP();    
+//  }
   
   _fsController->Setup();
   delay(100);
@@ -106,18 +131,31 @@ void CWebController::Reset()
 
 String CWebController::FormatPage(String content, String pageName)
 {
+  
   String ver = "0.1-dev";  
   double temperature = 23.6;
   double pressure = 874;
   double hummidity = 31;
-  String apSSID = "";
-  String staSSID = "";
-  String staPass = "";
-  int freq = 1800; 
+  String apSSID = _eeCurrentData.apSSID;
+  String staSSID = _eeCurrentData.staSSID;
+  String staPass = _eeCurrentData.staPassword;
+  int freq = _eeCurrentData.pollingPeriod; 
   content.replace("<%Version%>", String(ver));  
   content.replace("<%Temperature%>", String(temperature));  
   content.replace("<%Pressure%>", String(pressure));  
-  content.replace("<%Hummidity%>", String(hummidity));  
+  content.replace("<%Hummidity%>", String(hummidity));
+  
+  if (_eeCurrentData.wifiMode == EEPROM_WIFI_STA)
+  {
+    content.replace("<%ModeWiFiAP%>", "");
+    content.replace("<%ModeWiFiSTA%>", "checked" ); 
+  } 
+  else 
+  {
+    content.replace("<%ModeWiFiAP%>", "checked");
+    content.replace("<%ModeWiFiSTA%>", "" ); 
+  }
+  
   content.replace("<%APSSID%>", String(apSSID));  
   content.replace("<%STASSID%>", String(staSSID));  
   content.replace("<%STAPassword%>", String(staPass));  
@@ -128,6 +166,8 @@ String CWebController::FormatPage(String content, String pageName)
 
 void CWebController::HandleAction()
 {
+  EEData eeData = GetDateFromWebServerArgs();
+ 
   String message = "<html><head><meta charset=\"UTF-8\"/></head><body> ";
   message += "Number of args received:<br>";
   message += _webServer->args();      // получить количество параметров
@@ -139,12 +179,61 @@ void CWebController::HandleAction()
     message += _webServer->argName(i) + ": ";      // получить имя параметра
     message += _webServer->arg(i) + "\n<br>";      // получить значение параметра
   } 
+  message += "EEPROM Data: \n<br>";
+  message += _eeController->EEDataToString(_eeCurrentData);
+  message += "\n<br>";
 
-  message += _eeController->EEDataToString(_eeController->ReadData());
+  message += "Server Data: \n<br>";
+  message += _eeController->EEDataToString(eeData);
+  message += "\n<br>";
+  
   message += "<br><a href =\"/index.html\">index</a>";
   message += "</body></html>";
 
+
   SendContent(200, "text/html", message);    // ответить на HTTP запрос
+  
+  if(_eeController->WriteData(eeData))
+  {
+    _eeCurrentData = eeData;
+  }
+}
+
+EEData CWebController::GetDateFromWebServerArgs()
+{
+  EEData res = _eeController->GetEmptyData();
+    
+  for (int i = 0; i < _webServer->args(); i++) 
+  {
+    if (_webServer->argName(i) == "wifimode")
+    {
+      if (_webServer->arg(i) == "STA")
+      {
+        res.wifiMode = EEPROM_WIFI_STA;
+      }
+      else
+      {
+        res.wifiMode = EEPROM_WIFI_AP;
+      }
+    }
+    else if( _webServer->argName(i) == "ssidap")
+    {
+      strcpy(res.apSSID, _webServer->arg(i).c_str());
+    }
+    else if( _webServer->argName(i) == "ssidsta")
+    {
+      strcpy(res.staSSID, _webServer->arg(i).c_str());
+    }
+    else if( _webServer->argName(i) == "passwordsta")
+    {
+      strcpy(res.staPassword, _webServer->arg(i).c_str());
+    }
+    else if( _webServer->argName(i) == "polingfrequency")
+    {
+      res.pollingPeriod = _webServer->arg(i).toInt();
+    }
+  }
+  return res;
 }
 
 void CWebController::ConfigureWebServer()
@@ -164,7 +253,7 @@ bool CWebController::TryToConnect(String ssid, String pass)
 {
   byte tries = 20;
 
-  WiFi.begin(APSSID, APPSK);
+  WiFi.begin(ssid, pass);
   
   while (--tries && WiFi.status() != WL_CONNECTED) {
     delay(500);

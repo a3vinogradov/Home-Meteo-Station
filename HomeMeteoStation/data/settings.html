@@ -20,26 +20,26 @@
     <form method="post" action="action.html" class="Formsettings">
       <fieldset>
       <legend>Выбор режима работы WiFi</legend>
-        <!-- <input name="wifimode" type="radio" value="AP" <%ModeWiFiAP%> > Точка доступа -->
-        <input name="wifimode" type="radio" value="AP" checked > Точка доступа
-        <!-- <input name="wifimode" type="radio" value="STA" <%ModeWiFiSTA%> > Подключение к WiFi сети -->
-        <input name="wifimode" type="radio" value="STA"> Подключение к WiFi сети
+        <input name="wifimode" type="radio" value="AP" <%ModeWiFiAP%> > Точка доступа
+        <!-- <input name="wifimode" type="radio" value="AP" checked > Точка доступа -->
+        <input name="wifimode" type="radio" value="STA" <%ModeWiFiSTA%> > Подключение к WiFi сети 
+        <!-- <input name="wifimode" type="radio" value="STA"> Подключение к WiFi сети -->
       </fieldset>
       
 	  <fieldset>
         <legend>Параметры локальной точки доступа</legend>
-          <p><label for="name">SSID<em>*</em></label><input type="text" name="ssid" id="ssid" value="<%APSSID%>"> </p>
+          <p><label for="ssidap">SSID<em>*</em></label><input type="text" name="ssidap" id="ssidap" value="<%APSSID%>"> </p>
       </fieldset>
       
 	  <fieldset>
       <legend>Параметры подключения к сети WiFi</legend>
-        <p><label for="name">SSID</label><input type="text" name="ssid" id="ssid" value="<%STASSID%>"></p>
-        <p><label for="password">password</label><input type="password" name="password" id="password" value="<%STAPassword%>"></p>
+        <p><label for="ssidsta">SSID</label><input type="text" name="ssidsta" id="ssidsta" value="<%STASSID%>"></p>
+        <p><label for="passwordsta">password</label><input type="password" name="passwordsta" id="passwordsta" value="<%STAPassword%>"></p>
       </fieldset>
 
 	  <fieldset>
       <legend>Прочие настройки </legend>
-        <p><label for="name">Период опроса (мин)</label><input type="text" name="polingfrequency" id="polingfrequency" value="<%PoolingFrequency%>" style="width: 100"></p>
+        <p><label for="polingfrequency">Период опроса (мин)</label><input type="text" name="polingfrequency" id="polingfrequency" value="<%PoolingFrequency%>" style="width: 100"></p>
       </fieldset>
       <p><input type="submit" value="Отправить"></p>
     </form>

@@ -24,6 +24,7 @@ class CWebController {
     void Reset();
     //void HandleAbout();
     String FormatPage(String content, String pageName);
+    
 
 
   private:
@@ -31,9 +32,11 @@ class CWebController {
     CFSController* _fsController;
     CEEController* _eeController;
     ESP8266WebServer* _webServer;
+    EEData _eeCurrentData;
 
     void ConfigureWebServer();
     bool TryToConnect(String ssid, String pass);
+    EEData GetDateFromWebServerArgs();
 };
 
 #endif

@@ -15,15 +15,15 @@ void CEEController::Exec()
   
 }
 
-EEData CEEController::GetEmtyData()
+EEData CEEController::GetEmptyData()
 {
   EEData res;
   res.dataKey = EEPROM_KEY;
   res.wifiMode = EEPROM_WIFI_AP;
-  strcpy(res.ssid, "");   
-  strcpy(res.ssPassword, "");   
-  strcpy(res.ssidAP, "");   
-  strcpy(res.ssPasswordAP, ""); 
+  strcpy(res.apSSID, "");   
+  strcpy(res.apPassword, "");   
+  strcpy(res.staSSID, "");   
+  strcpy(res.staPassword, ""); 
   res.pollingPeriod = 0;
 
   return res;
@@ -33,10 +33,10 @@ EEData CEEController::GetDefaultData()
   EEData res;
   res.dataKey = EEPROM_KEY;
   res.wifiMode = EEPROM_WIFI_AP;
-  strcpy(res.ssid, "");   
-  strcpy(res.ssPassword, "");   
-  strcpy(res.ssidAP, "HomeStationAuto");   
-  strcpy(res.ssPasswordAP, ""); 
+  strcpy(res.apSSID, "MeteoStationAuto");   
+  strcpy(res.apPassword, "");   
+  strcpy(res.staSSID, "BelkoNet");   
+  strcpy(res.staPassword, "liskabelko"); 
   res.pollingPeriod = 1800;
     
   return res;
@@ -69,14 +69,14 @@ bool CEEController::WriteData(EEData eeData)
 
 String CEEController::EEDataToString(EEData eeData)
 {
-  String res = "struct EEData:\n";
-  res = res + "dataKey = " + String(eeData.dataKey) + "\n"; 
-  res = res + "wifiMode = " + String(eeData.wifiMode) + "\n"; 
-  res = res + "dataKey = " + String(eeData.ssid) + "\n"; 
-  res = res + "dataKey = " + String(eeData.ssPassword) + "\n"; 
-  res = res + "dataKey = " + String(eeData.ssidAP) + "\n"; 
-  res = res + "dataKey = " + String(eeData.ssPasswordAP) + "\n"; 
-  res = res + "pooling period = " + String(eeData.pollingPeriod) + "сек \n"; 
+  String res = "struct EEData:\n<br>";
+  res = res + "dataKey = " + String(eeData.dataKey) + ";\n<br>"; 
+  res = res + "wifiMode = " + String(eeData.wifiMode) + ";\n<br>"; 
+  res = res + "apSSID = " + String(eeData.apSSID) + ";\n<br>"; 
+  res = res + "apPassword = " + String(eeData.apPassword) + ";\n<br>"; 
+  res = res + "staSSID = " + String(eeData.staSSID) + ";\n<br>"; 
+  res = res + "staPassword = " + String(eeData.staPassword) + ";\n<br>"; 
+  res = res + "pooling period = " + String(eeData.pollingPeriod) + "сек ;\n<br>"; 
   
   return res;
 }

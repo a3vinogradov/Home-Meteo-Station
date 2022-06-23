@@ -12,10 +12,10 @@ struct EEData
 {
   byte dataKey;
   byte wifiMode;
-  char ssid[33];
-  char ssPassword[33];
-  char ssidAP[33];
-  char ssPasswordAP[33];
+  char apSSID[33];
+  char apPassword[33];
+  char staSSID[33];
+  char staPassword[33];
   int pollingPeriod; // период опроса датчиков в секундах
 };
 
@@ -25,7 +25,7 @@ class CEEController
     CEEController();
     void Setup();
     void Exec();
-    EEData GetEmtyData();
+    EEData GetEmptyData();
     EEData GetDefaultData();
     EEData ReadData();
     bool WriteData(EEData eeData);
