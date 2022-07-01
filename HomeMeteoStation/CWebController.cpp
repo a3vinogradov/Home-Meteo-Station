@@ -3,8 +3,8 @@
 CWebController* CWebController::_instance = 0;
 //=======================================
 
-void HandleRoot() {
-  CWebController::GetInstance()->HandlePage("/index.html");
+void GHandleRoot() {
+  CWebController::GetInstance()->HandleRoot();
 }
 
 void Handle_NotFound() {
@@ -52,8 +52,11 @@ CWebController* CWebController::GetInstance()
   return _instance;
 }
 
-void CWebController::Setup()
+void CWebController::Setup(CSensorController* sensorController, CQueue* measureStore)
 {
+  _sensorController = sensorController;
+  _measureStore = measureStore;
+    
   _eeCurrentData = _eeController->ReadData();
   if(_eeCurrentData.dataKey != EEPROM_KEY)
   {
@@ -75,26 +78,13 @@ void CWebController::Setup()
     Serial.println("");
     //Serial.println("WiFi connected");
     Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());    
+    Serial.println(WiFi.localIP());   
+    WiFi.hostname("MeteoStation"); 
   }
 
-  
-//  if (TryToConnect(APSSID, APPSK))
-//  {
-//    Serial.println("");
-//    Serial.println("WiFi connected");
-//    Serial.println("IP address: ");
-//    Serial.println(WiFi.localIP());    
-//  }
-//  else
-//  {
-//    Serial.println("Non Connecting to WiFi..");
-//    Serial.println("Start create AP");
-//    WiFi.softAP(LOCALSSID); // свободный доступ
-//    IPAddress myIP = WiFi.softAPIP();    
-//  }
-  
   _fsController->Setup();
+  _eeController->Setup();
+  
   delay(100);
 
   ConfigureWebServer();
@@ -131,11 +121,10 @@ void CWebController::Reset()
 
 String CWebController::FormatPage(String content, String pageName)
 {
-  
   String ver = "0.1-dev";  
-  double temperature = 23.6;
-  double pressure = 874;
-  double hummidity = 31;
+  double temperature = _lastMeasureData.Temperature1;
+  double pressure = _lastMeasureData.Pressure;
+  double hummidity = _lastMeasureData.Hummidity;
   String apSSID = _eeCurrentData.apSSID;
   String staSSID = _eeCurrentData.staSSID;
   String staPass = _eeCurrentData.staPassword;
@@ -160,7 +149,7 @@ String CWebController::FormatPage(String content, String pageName)
   content.replace("<%STASSID%>", String(staSSID));  
   content.replace("<%STAPassword%>", String(staPass));  
   content.replace("<%PoolingFrequency%>", String(freq));  
-  
+  content.replace("<%TableHistory%>", GetTableHistoryHTML());
   return content;
 }
 
@@ -197,6 +186,12 @@ void CWebController::HandleAction()
   {
     _eeCurrentData = eeData;
   }
+}
+
+void CWebController::HandleRoot()
+{
+  _lastMeasureData = _sensorController->GetMeasure();
+   HandlePage("/index.html");
 }
 
 EEData CWebController::GetDateFromWebServerArgs()
@@ -238,8 +233,8 @@ EEData CWebController::GetDateFromWebServerArgs()
 
 void CWebController::ConfigureWebServer()
 {
-  _webServer->on("/", HandleRoot);
-  _webServer->on("/index.html", HandleRoot);
+  _webServer->on("/", GHandleRoot);
+  _webServer->on("/index.html", GHandleRoot);
   _webServer->on("/settings.html", HandleSettings);
   _webServer->on("/action.html", GHandleAction);
   _webServer->on("/about.html", GHandleAbout);
@@ -261,4 +256,21 @@ bool CWebController::TryToConnect(String ssid, String pass)
   }
 
   return WiFi.status() == WL_CONNECTED;
+}
+
+String CWebController::GetTableHistoryHTML()
+{
+  String result = "";
+  for( int i = 0; i < _measureStore->Size(); i++)
+  {
+    QueueData item = _measureStore->ItemAt(i);
+    result += "<tr>";
+    result += "<td>"+String(i+1)+"</td>";
+    result += "<td>"+String("test test date")+"</td>";
+    result += "<td>"+String(item.Temperature1)+"</td>";
+    result += "<td>"+String(item.Pressure)+"</td>";
+    result += "<td>"+String(item.Hummidity)+"</td>";
+    result += "</tr>";
+  }
+  return result;
 }

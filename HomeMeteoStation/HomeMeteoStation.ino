@@ -9,7 +9,14 @@
 // В браузере открывается страница http://192.168.4.1
 
 #include "CWebController.h"
+#include "CQueue.h"
+#include "CSensorController.h"
+#include "CSensorTask.h"
+
 CWebController* webController = CWebController::GetInstance();
+CQueue gMeasureStore = CQueue(10);
+CSensorController gSensorController;
+CSensorTask gSensorTask(&gSensorController, &gMeasureStore);
 
 void setup() {
   Serial.begin(115200);
@@ -17,6 +24,8 @@ void setup() {
   Serial.println("");
   Serial.println("");
   Serial.println("Init Start setup");
+
+  gSensorController.Setup();
 
   // проверка нажатия кнопки ресет
   if (digitalRead(16) == HIGH)
@@ -29,10 +38,14 @@ void setup() {
     }
   }
   
-  webController->Setup();
+  webController->Setup(&gSensorController, &gMeasureStore);
   Serial.println("End Start setup");
+
+  //gMeasureStore.Push(gSensorController.GetMeasure());
+  gSensorTask.Setup();
 }
 
 void loop() {
   webController->Exec();
+  gSensorTask.Exec();
 }

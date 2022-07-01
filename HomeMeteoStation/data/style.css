@@ -120,7 +120,7 @@ border-color: white;
 background: #D8E6F3;
 }
 .HistoryPage th:first-child, .HistoryPage td:first-child {
-text-align: left;
+text-align: center;
 }
 
 form.Formsettings {
