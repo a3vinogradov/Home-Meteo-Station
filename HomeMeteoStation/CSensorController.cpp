@@ -1,4 +1,6 @@
 #include "CSensorController.h"
+#include "Time.h"
+#include "TimeLib.h"
 
 CSensorController::CSensorController()
 {
@@ -15,6 +17,7 @@ void CSensorController::Setup()
 QueueData CSensorController::GetMeasure()
 {
   QueueData res;
+  res.DT = now();
   res.Temperature1 = 0;
   res.Temperature2 = 0;
   res.Pressure = 0;

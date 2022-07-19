@@ -11,6 +11,7 @@ void CSensorTask::Setup()
   SetPeriod(5000);
   Start();
 }
+
 void CSensorTask::Start()
 {
   _active = true;

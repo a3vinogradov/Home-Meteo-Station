@@ -1,5 +1,6 @@
 #include "CWebController.h"
 
+
 CWebController* CWebController::_instance = 0;
 //=======================================
 
@@ -40,6 +41,7 @@ CWebController::CWebController()
   _fsController = new CFSController;
   _eeController = new CEEController;
   _webServer = new ESP8266WebServer(80);
+  setTime(11,20,0,14,7,22); // todo: брать из интернетов
 }
 
 CWebController* CWebController::GetInstance()
@@ -155,8 +157,6 @@ String CWebController::FormatPage(String content, String pageName)
 
 void CWebController::HandleAction()
 {
-  EEData eeData = GetDateFromWebServerArgs();
- 
   String message = "<html><head><meta charset=\"UTF-8\"/></head><body> ";
   message += "Number of args received:<br>";
   message += _webServer->args();      // получить количество параметров
@@ -168,30 +168,67 @@ void CWebController::HandleAction()
     message += _webServer->argName(i) + ": ";      // получить имя параметра
     message += _webServer->arg(i) + "\n<br>";      // получить значение параметра
   } 
-  message += "EEPROM Data: \n<br>";
-  message += _eeController->EEDataToString(_eeCurrentData);
-  message += "\n<br>";
-
-  message += "Server Data: \n<br>";
-  message += _eeController->EEDataToString(eeData);
-  message += "\n<br>";
+  message += "====================================\n<br>\n<br>";
   
+  String actionType = GetActionType();
+  message += "actionType = " + actionType; 
+  if (actionType == "setWiFiMode")
+  {
+    message += "EEPROM Data: \n<br>";
+    message += _eeController->EEDataToString(_eeCurrentData);
+    message += "\n<br>";
+  
+    EEData eeData = GetDateFromWebServerArgs();
+    message += "Server Data: \n<br>";
+    message += _eeController->EEDataToString(eeData);
+
+    
+    if(_eeController->WriteData(eeData))
+    {
+      _eeCurrentData = eeData;
+    }    
+  } 
+  else if(actionType == "setDateTime")
+  {
+    //HandleActionSetDateTime();
+    String webDateTime = GetStringParameter("pDateTime");
+    message += "<h3>======= HandleActionSetDateTime =====================</h3>";
+    message += "<p>webDateTime = " + webDateTime + "</p>"; 
+    
+    time_t dt = WebDateTimeToTime_t(webDateTime);
+    message += "<p>time_t = "+String(dt)+"</p>"; 
+    setTime(dt);
+  }
+
+
+  message += "\n<br>";
   message += "<br><a href =\"/index.html\">index</a>";
   message += "</body></html>";
-
-
   SendContent(200, "text/html", message);    // ответить на HTTP запрос
-  
-  if(_eeController->WriteData(eeData))
-  {
-    _eeCurrentData = eeData;
-  }
 }
 
 void CWebController::HandleRoot()
 {
   _lastMeasureData = _sensorController->GetMeasure();
    HandlePage("/index.html");
+}
+
+String CWebController::GetActionType()
+{
+  return GetStringParameter("actionType");
+}
+
+String CWebController::GetStringParameter(String paramName)
+{
+  for (int i = 0; i < _webServer->args(); i++) 
+  {
+    if (_webServer->argName(i) == paramName)
+    {
+      return String(_webServer->arg(i).c_str());
+    }
+  }
+  
+  return "";
 }
 
 EEData CWebController::GetDateFromWebServerArgs()
@@ -264,13 +301,33 @@ String CWebController::GetTableHistoryHTML()
   for( int i = 0; i < _measureStore->Size(); i++)
   {
     QueueData item = _measureStore->ItemAt(i);
+    String dateStr = String( day(item.DT))+"-"+
+                     String( month(item.DT))+"-"+
+                     String( year(item.DT))+" "+
+                     String( hour(item.DT))+":"+
+                     String( minute(item.DT))+":"+
+                     String( second(item.DT));
     result += "<tr>";
     result += "<td>"+String(i+1)+"</td>";
-    result += "<td>"+String("test test date")+"</td>";
+    result += "<td>"+dateStr+"</td>";
     result += "<td>"+String(item.Temperature1)+"</td>";
     result += "<td>"+String(item.Pressure)+"</td>";
     result += "<td>"+String(item.Hummidity)+"</td>";
     result += "</tr>";
   }
   return result;
+}
+
+time_t CWebController::WebDateTimeToTime_t(String webDateTime)
+{
+  //2022-07-20T08:43
+  tmElements_t dt;
+  dt.Year = webDateTime.substring(0,4).toInt()-1970;
+  dt.Month = webDateTime.substring(5,7).toInt();
+  dt.Day = webDateTime.substring(8,10).toInt();
+  dt.Hour = webDateTime.substring(11,13).toInt();
+  dt.Minute = webDateTime.substring(14,16).toInt();
+  dt.Second = 0;
+  
+  return makeTime(dt); 
 }

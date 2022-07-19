@@ -4,6 +4,8 @@
 #include "CFSController.h"
 #include "CEEController.h"
 #include "CSensorController.h"
+#include "Time.h"
+#include "TimeLib.h"
 
 #define LOCALSSID "HomeStationAuto"
 #define APSSID "BelkoNet"
@@ -43,6 +45,10 @@ class CWebController {
     bool TryToConnect(String ssid, String pass);
     EEData GetDateFromWebServerArgs();
     String GetTableHistoryHTML();
+    String GetActionType();
+    String GetStringParameter(String paramName);
+    time_t WebDateTimeToTime_t(String webDateTime); 
+  
 };
 
 #endif

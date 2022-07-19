@@ -7,6 +7,7 @@
 
 struct QueueData
 {
+  time_t DT;
   double Temperature1;
   double Temperature2;
   double Pressure;
@@ -30,8 +31,6 @@ class CQueue
     QueueData Pop();
     void Clear();
     QueueData ItemAt(int index);
-
-    
 };
 
 #endif
