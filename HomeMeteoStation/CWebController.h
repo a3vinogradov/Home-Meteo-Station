@@ -28,6 +28,7 @@ class CWebController {
     void Reset();
     //void HandleAbout();
     String FormatPage(String content, String pageName);
+    void SendToNarodmon();
     
 
 
