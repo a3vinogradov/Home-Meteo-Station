@@ -28,7 +28,8 @@ class CWebController {
     void Reset();
     //void HandleAbout();
     String FormatPage(String content, String pageName);
-    void SendToNarodmon();
+    void SendToNarodmon(QueueData data);
+    CEEController* GetEEController();
     
 
 
@@ -38,13 +39,15 @@ class CWebController {
     CEEController* _eeController;
     ESP8266WebServer* _webServer;
     EEData _eeCurrentData;
+    EENMData _eeCurrentNMData;
     QueueData _lastMeasureData;
     CSensorController* _sensorController;
     CQueue* _measureStore;
 
     void ConfigureWebServer();
     bool TryToConnect(String ssid, String pass);
-    EEData GetDateFromWebServerArgs();
+    EEData GetDataFromWebServerArgs();
+    EENMData GetNMDataFromWebServerArgs();
     String GetTableHistoryHTML();
     String GetActionType();
     String GetStringParameter(String paramName);

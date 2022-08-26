@@ -54,6 +54,28 @@
         <p><input type="submit" value="Установить"></p>
       </fieldset>
 	</form>
+	<form method="post" action="action.html" class="Formsettings">
+      <fieldset>
+      <legend>Отправка данных на narodmon.ru</legend>
+	    <input type="hidden" name="actionType" id="actionType" value="SendNMMessage">
+        <p><input type="submit" value="Отправить"></p>
+      </fieldset>
+	</form>
+	<form method="post" action="action.html" class="Formsettings">
+      <fieldset>
+      <legend>Настроки для narodmon.ru</legend>
+	    <input type="hidden" name="actionType" id="actionType" value="NarodmonSettings">
+        <p><label for="nmMAC">MAC</label><input type="text" name="nmMAC" id="nmMAC" value="<%nmMAC%>"> </p>
+		<p>Идентификаторы датиков:</p>
+        <p><label for="nmBMP280T">BMP280 температура</label><input type="text" name="nmBMP280T" id="nmBMP280T" value="<%nmBMP280T%>"> </p>
+        <p><label for="nmBMP280P">BMP280 давление</label><input type="text" name="nmBMP280P" id="nmBMP280P" value="<%nmBMP280P%>"> </p>
+        <p><label for="nmAHT21bT">AHT21b температура</label><input type="text" name="nmAHT21bT" id="nmAHT21bT" value="<%nmAHT21bT%>"> </p>
+        <p><label for="nmAHT21bH">AHT21b влажность</label><input type="text" name="nmAHT21bH" id="nmAHT21bH" value="<%nmAHT21bH%>"> </p>
+        <p><label for="nmFrequency">Период опроса датчиков (мин)</label><input type="text" name="nmFrequency" id="nmFrequency" value="<%nmFrequency%>" style="width: 100"></p>
+		
+        <p><input type="submit" value="Сохранить"></p>
+      </fieldset>
+	</form>
 	
   </body>
 </html>

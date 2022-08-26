@@ -28,6 +28,7 @@ EEData CEEController::GetEmptyData()
 
   return res;
 }
+
 EEData CEEController::GetDefaultData()
 {
   EEData res;
@@ -67,6 +68,61 @@ bool CEEController::WriteData(EEData eeData)
   return true;
 }
 
+//===================================================
+
+EENMData CEEController::GetEmptyNMData()
+{
+  EENMData res;
+  strcpy(res.MAC, "");   
+  strcpy(res.BMP280T, "");   
+  strcpy(res.BMP280P, "");   
+  strcpy(res.AHT21bT, "");   
+  strcpy(res.AHT21bH, ""); 
+  res.pollingPeriod = 0;
+
+  return res;
+}
+
+EENMData CEEController::GetDefaultNMData()
+{
+  EENMData res;
+  strcpy(res.MAC, "14DE803A90C9");   
+  strcpy(res.BMP280T, "BMP280T");   
+  strcpy(res.BMP280P, "BMP280P");   
+  strcpy(res.AHT21bT, "AHT21bT");   
+  strcpy(res.AHT21bH, "AHT21bH"); 
+  res.pollingPeriod = 30;
+  
+  return res;
+} 
+
+EENMData CEEController::ReadNMData()
+{
+  EEPROM.begin(512);
+
+  EENMData res;
+  EEPROM.get(sizeof(EEData)+1,res);
+  Serial.println("");
+  Serial.println("Read EEPROM");
+  Serial.println(EENMDataToString(res));
+
+  if (res.dataKey != EEPROM_KEY)
+  {
+    res = GetDefaultNMData();
+  }
+  
+  return res;
+}
+
+bool CEEController::WriteNMData(EENMData eeNMData)
+{
+  EEPROM.begin(512);
+  EEPROM.put(sizeof(EEData),eeNMData);
+  EEPROM.commit();
+  return true;
+}
+//===================================================
+
 String CEEController::EEDataToString(EEData eeData)
 {
   String res = "struct EEData:\n<br>";
@@ -79,4 +135,17 @@ String CEEController::EEDataToString(EEData eeData)
   res = res + "pooling period = " + String(eeData.pollingPeriod) + "сек ;\n<br>"; 
   
   return res;
+}
+
+String CEEController::EENMDataToString(EENMData eeNMData)
+{
+  String res = "struct EENMData:\n<br>";
+  res = res + "MAC = " + String(eeNMData.MAC) + ";\n<br>"; 
+  res = res + "BMP280T = " + String(eeNMData.BMP280T) + ";\n<br>"; 
+  res = res + "BMP280P = " + String(eeNMData.BMP280P) + ";\n<br>"; 
+  res = res + "AHT21bT = " + String(eeNMData.AHT21bT) + ";\n<br>"; 
+  res = res + "AHT21bH = " + String(eeNMData.AHT21bH) + ";\n<br>"; 
+  res = res + "pooling period = " + String(eeNMData.pollingPeriod) + "сек ;\n<br>"; 
+  
+  return res; 
 }

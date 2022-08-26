@@ -64,8 +64,15 @@ void CWebController::Setup(CSensorController* sensorController, CQueue* measureS
   {
     Reset();
   }
-  
   _eeCurrentData = _eeController->ReadData();
+  
+  _eeCurrentNMData = _eeController->ReadNMData();
+  if(_eeCurrentNMData.dataKey != EEPROM_KEY)
+  {
+    _eeController->WriteNMData(_eeController->GetDefaultNMData());
+  }
+  _eeCurrentNMData = _eeController->ReadNMData();
+  
   if (_eeCurrentData.wifiMode == EEPROM_WIFI_AP)
   {
     Serial.println("Start create AP");
@@ -152,6 +159,14 @@ String CWebController::FormatPage(String content, String pageName)
   content.replace("<%STAPassword%>", String(staPass));  
   content.replace("<%PoolingFrequency%>", String(freq));  
   content.replace("<%TableHistory%>", GetTableHistoryHTML());
+
+  content.replace("<%nmMAC%>", String(_eeCurrentNMData.MAC));
+  content.replace("<%nmBMP280T%>", String(_eeCurrentNMData.BMP280T));
+  content.replace("<%nmBMP280P%>", String(_eeCurrentNMData.BMP280P));
+  content.replace("<%nmAHT21bT%>", String(_eeCurrentNMData.AHT21bT));
+  content.replace("<%nmAHT21bH%>", String(_eeCurrentNMData.AHT21bH));
+  content.replace("<%nmFrequency%>", String(_eeCurrentNMData.pollingPeriod));
+
   return content;
 }
 
@@ -178,7 +193,7 @@ void CWebController::HandleAction()
     message += _eeController->EEDataToString(_eeCurrentData);
     message += "\n<br>";
   
-    EEData eeData = GetDateFromWebServerArgs();
+    EEData eeData = GetDataFromWebServerArgs();
     message += "Server Data: \n<br>";
     message += _eeController->EEDataToString(eeData);
 
@@ -199,8 +214,31 @@ void CWebController::HandleAction()
     message += "<p>time_t = "+String(dt)+"</p>"; 
     setTime(dt);
   }
+  else if(actionType == "SendNMMessage")
+  {
+    QueueData data = _sensorController->GetMeasure();
+    message += "<p>Try to send message... </p>"; 
+    SendToNarodmon(data);
+    message += "<p>End sending. Status - n/a </p>"; 
+  }
+  else if(actionType == "NarodmonSettings")
+  {
+    message += "<p>Handling action NarodmonSettings ... </p>"; 
+    message += "EEPROM NMData: \n<br>";
+    message += _eeController->EENMDataToString(_eeCurrentNMData);
+    message += "\n<br>";
+  
+    EENMData eeNMData = GetNMDataFromWebServerArgs();
+    //message += "Server Data: \n<br>";
+    //message += _eeController->EEDataToString(eeData);
 
-
+    
+    if(_eeController->WriteNMData(eeNMData))
+    {
+      _eeCurrentNMData = eeNMData;
+    }    
+  }
+  
   message += "\n<br>";
   message += "<br><a href =\"/index.html\">index</a>";
   message += "</body></html>";
@@ -231,7 +269,7 @@ String CWebController::GetStringParameter(String paramName)
   return "";
 }
 
-EEData CWebController::GetDateFromWebServerArgs()
+EEData CWebController::GetDataFromWebServerArgs()
 {
   EEData res = _eeController->GetEmptyData();
     
@@ -267,6 +305,42 @@ EEData CWebController::GetDateFromWebServerArgs()
   }
   return res;
 }
+
+EENMData CWebController::GetNMDataFromWebServerArgs()
+{
+  EENMData res = _eeController->GetEmptyNMData();
+    
+  for (int i = 0; i < _webServer->args(); i++) 
+  {
+    if( _webServer->argName(i) == "nmMAC")
+    {
+      strcpy(res.MAC, _webServer->arg(i).c_str());
+    }
+    else if( _webServer->argName(i) == "nmBMP280T")
+    {
+      strcpy(res.BMP280T, _webServer->arg(i).c_str());
+    }
+    else if( _webServer->argName(i) == "nmBMP280P")
+    {
+      strcpy(res.BMP280P, _webServer->arg(i).c_str());
+    }
+    else if( _webServer->argName(i) == "nmAHT21bT")
+    {
+      strcpy(res.AHT21bT, _webServer->arg(i).c_str());
+    }
+    else if( _webServer->argName(i) == "nmAHT21bH")
+    {
+      strcpy(res.AHT21bH, _webServer->arg(i).c_str());
+    }
+    else if( _webServer->argName(i) == "nmFrequency")
+    {
+      res.pollingPeriod = _webServer->arg(i).toInt();
+    }
+  }
+  
+  return res;
+}
+
 
 void CWebController::ConfigureWebServer()
 {
@@ -332,7 +406,7 @@ time_t CWebController::WebDateTimeToTime_t(String webDateTime)
   return makeTime(dt); 
 }
 
-void CWebController::SendToNarodmon()
+void CWebController::SendToNarodmon(QueueData data)
 {
     WiFiClient client;
     HTTPClient http;
@@ -342,10 +416,14 @@ void CWebController::SendToNarodmon()
     http.addHeader("Content-Type", "application/json");
     Serial.print("[HTTP] POST...\n");
     
-    String Message = String("{ \"devices\":[{\"mac\": \"14DE803A90C9\",\"sensors\":[{ \"id\": \"TemperatureTest\",\"value\": ") +
-          String(26.2) +
-          String("},{\"id\": \"HumidityTest\",\"value\": ")+
-          String(36.4) +
+    String Message = String("{ \"devices\":[{\"mac\": \"14DE803A90C9\",\"sensors\":[{ \"id\": \"TemperatureAHT21\",\"value\": ") +
+          String(data.Temperature1) +
+          String("},{\"id\": \"TemperatureBMP280\",\"value\": ")+
+          String(data.Temperature2) +
+          String("},{\"id\": \"HumidityAHT21\",\"value\": ")+
+          String(data.Hummidity) +
+          String("},{\"id\": \"PressureBMP280\",\"value\": ")+
+          String(data.Pressure) +
           String("}]}]}"); 
     int httpCode = http.POST(Message);
 
@@ -371,4 +449,9 @@ void CWebController::SendToNarodmon()
     Serial.println("String sended:");
     Serial.println(Message);
     Serial.println("===============================");
+}
+
+CEEController* CWebController::GetEEController()
+{
+  return _eeController;
 }
