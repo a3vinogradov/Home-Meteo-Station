@@ -6,6 +6,7 @@
 #include "CSensorController.h"
 #include "Time.h"
 #include "TimeLib.h"
+#include "CSensorTask.h"
 
 #define LOCALSSID "HomeStationAuto"
 #define APSSID "BelkoNet"
@@ -19,19 +20,17 @@ class CWebController {
     CWebController();
     static CWebController* GetInstance();
 
-    void Setup(CSensorController* sensorController, CQueue* measureStore);
+    void Setup(CSensorController* sensorController, CQueue* measureStore, CSensorTask* sensorTask);
     void Exec();
     void SendContent(int code, String contentType, String content );
     void HandlePage(String pageName);
     void HandleAction();
-    void HandleRoot();
+    void HandleRoot(); 
     void Reset();
     //void HandleAbout();
     String FormatPage(String content, String pageName);
     void SendToNarodmon(QueueData data);
     CEEController* GetEEController();
-    
-
 
   private:
     static CWebController* _instance;
@@ -43,6 +42,7 @@ class CWebController {
     QueueData _lastMeasureData;
     CSensorController* _sensorController;
     CQueue* _measureStore;
+    CSensorTask* _sensorTask;
 
     void ConfigureWebServer();
     bool TryToConnect(String ssid, String pass);

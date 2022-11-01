@@ -54,10 +54,11 @@ CWebController* CWebController::GetInstance()
   return _instance;
 }
 
-void CWebController::Setup(CSensorController* sensorController, CQueue* measureStore)
+void CWebController::Setup(CSensorController* sensorController, CQueue* measureStore, CSensorTask* sensorTask)
 {
   _sensorController = sensorController;
   _measureStore = measureStore;
+  _sensorTask = sensorTask;
     
   _eeCurrentData = _eeController->ReadData();
   if(_eeCurrentData.dataKey != EEPROM_KEY)
@@ -69,6 +70,7 @@ void CWebController::Setup(CSensorController* sensorController, CQueue* measureS
   _eeCurrentNMData = _eeController->ReadNMData();
   if(_eeCurrentNMData.dataKey != EEPROM_KEY)
   {
+    Serial.println("Bad NMData in EEPROM. Get default data");
     _eeController->WriteNMData(_eeController->GetDefaultNMData());
   }
   _eeCurrentNMData = _eeController->ReadNMData();
@@ -167,6 +169,8 @@ String CWebController::FormatPage(String content, String pageName)
   content.replace("<%nmAHT21bH%>", String(_eeCurrentNMData.AHT21bH));
   content.replace("<%nmFrequency%>", String(_eeCurrentNMData.pollingPeriod));
 
+  content.replace("<%MAC%>", String(WiFi.macAddress()));
+  content.replace("<%nmActive%>", _eeCurrentNMData.isActive?"checked":"");
   return content;
 }
 
@@ -229,13 +233,13 @@ void CWebController::HandleAction()
     message += "\n<br>";
   
     EENMData eeNMData = GetNMDataFromWebServerArgs();
-    //message += "Server Data: \n<br>";
-    //message += _eeController->EEDataToString(eeData);
-
-    
     if(_eeController->WriteNMData(eeNMData))
     {
       _eeCurrentNMData = eeNMData;
+      if(_sensorTask != NULL)
+      {
+        _sensorTask->Restart();
+      }
     }    
   }
   
@@ -336,6 +340,10 @@ EENMData CWebController::GetNMDataFromWebServerArgs()
     {
       res.pollingPeriod = _webServer->arg(i).toInt();
     }
+    else if( _webServer->argName(i) == "nmActive")
+    {
+      res.isActive = _webServer->arg(i) == "active"?1:0;
+    }  
   }
   
   return res;
@@ -416,13 +424,13 @@ void CWebController::SendToNarodmon(QueueData data)
     http.addHeader("Content-Type", "application/json");
     Serial.print("[HTTP] POST...\n");
     
-    String Message = String("{ \"devices\":[{\"mac\": \"14DE803A90C9\",\"sensors\":[{ \"id\": \"TemperatureAHT21\",\"value\": ") +
+    String Message = String("{ \"devices\":[{\"mac\": \"" + String(_eeCurrentNMData.MAC) + "\",\"sensors\":[{ \"id\": \"" + String(_eeCurrentNMData.AHT21bT) + "\",\"value\": ") +
           String(data.Temperature1) +
-          String("},{\"id\": \"TemperatureBMP280\",\"value\": ")+
+          String("},{\"id\": \"" + String(_eeCurrentNMData.BMP280T) + "\",\"value\": ")+
           String(data.Temperature2) +
-          String("},{\"id\": \"HumidityAHT21\",\"value\": ")+
+          String("},{\"id\": \"" + String(_eeCurrentNMData.AHT21bH) + "\",\"value\": ")+
           String(data.Hummidity) +
-          String("},{\"id\": \"PressureBMP280\",\"value\": ")+
+          String("},{\"id\": \"" + String(_eeCurrentNMData.BMP280P) + "\",\"value\": ")+
           String(data.Pressure) +
           String("}]}]}"); 
     int httpCode = http.POST(Message);

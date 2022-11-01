@@ -14,8 +14,12 @@ h2{
 }
 p{
 	font-size: 28px;
-	
 }
+
+a{
+	font-size: 28px;
+}
+
 body {
 	background: #D8E6F3;
 	color: #14568f;	
@@ -149,4 +153,9 @@ form.Formsettings {
 	height:35px; 
 	width:35px;
 }
-
+.Formsettings input[type="checkbox"] {
+	font-size: 40px;
+	margin-left : 20px;
+	height:35px; 
+	width:35px;
+}

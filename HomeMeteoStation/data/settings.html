@@ -65,6 +65,10 @@
       <fieldset>
       <legend>Настроки для narodmon.ru</legend>
 	    <input type="hidden" name="actionType" id="actionType" value="NarodmonSettings">
+		<div>
+        <input type="checkbox" id="nmActive" name="nmActive" value="active" <%nmActive%> >
+        <label for="horns">Включить отправку данных</label>
+        </div>
         <p><label for="nmMAC">MAC</label><input type="text" name="nmMAC" id="nmMAC" value="<%nmMAC%>"> </p>
 		<p>Идентификаторы датиков:</p>
         <p><label for="nmBMP280T">BMP280 температура</label><input type="text" name="nmBMP280T" id="nmBMP280T" value="<%nmBMP280T%>"> </p>

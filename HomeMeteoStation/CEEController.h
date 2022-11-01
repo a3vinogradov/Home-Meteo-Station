@@ -28,6 +28,7 @@ struct EENMData
   char AHT21bT[11];
   char AHT21bH[11];
   int pollingPeriod;
+  byte isActive;
 };
 
 struct AllData
@@ -52,7 +53,6 @@ class CEEController
     bool WriteNMData(EENMData eeNMData);
     String EEDataToString(EEData eeData); 
     String EENMDataToString(EENMData eeNMData); 
-     
 };
 
 #endif

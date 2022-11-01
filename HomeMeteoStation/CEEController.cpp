@@ -31,9 +31,7 @@ EEData CEEController::GetEmptyData()
 
 EEData CEEController::GetDefaultData()
 {
-  EEData res;
-  res.dataKey = EEPROM_KEY;
-  res.wifiMode = EEPROM_WIFI_AP;
+  EEData res = GetEmptyData();
   strcpy(res.apSSID, "MeteoStationAuto");   
   strcpy(res.apPassword, "");   
   strcpy(res.staSSID, "BelkoNet");   
@@ -73,19 +71,21 @@ bool CEEController::WriteData(EEData eeData)
 EENMData CEEController::GetEmptyNMData()
 {
   EENMData res;
+  res.dataKey = EEPROM_KEY;
   strcpy(res.MAC, "");   
   strcpy(res.BMP280T, "");   
   strcpy(res.BMP280P, "");   
   strcpy(res.AHT21bT, "");   
   strcpy(res.AHT21bH, ""); 
   res.pollingPeriod = 0;
+  res.isActive = 0;
 
   return res;
 }
 
 EENMData CEEController::GetDefaultNMData()
 {
-  EENMData res;
+  EENMData res = GetEmptyNMData();
   strcpy(res.MAC, "14DE803A90C9");   
   strcpy(res.BMP280T, "BMP280T");   
   strcpy(res.BMP280P, "BMP280P");   
@@ -101,7 +101,7 @@ EENMData CEEController::ReadNMData()
   EEPROM.begin(512);
 
   EENMData res;
-  EEPROM.get(sizeof(EEData)+1,res);
+  EEPROM.get(sizeof(EEData),res);
   Serial.println("");
   Serial.println("Read EEPROM");
   Serial.println(EENMDataToString(res));
@@ -146,6 +146,7 @@ String CEEController::EENMDataToString(EENMData eeNMData)
   res = res + "AHT21bT = " + String(eeNMData.AHT21bT) + ";\n<br>"; 
   res = res + "AHT21bH = " + String(eeNMData.AHT21bH) + ";\n<br>"; 
   res = res + "pooling period = " + String(eeNMData.pollingPeriod) + "сек ;\n<br>"; 
+  res = res + "isActive = " + String(eeNMData.isActive) + ";\n<br>"; 
   
   return res; 
 }
